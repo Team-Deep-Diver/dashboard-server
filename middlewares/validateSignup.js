@@ -1,17 +1,26 @@
 const { body } = require("express-validator");
+const ERROR = require("../constants/error");
 
 exports.validateSignup = [
+  body("nickname").notEmpty().withMessage(ERROR.NO_NICKNAME),
   body("email")
     .notEmpty()
-    .withMessage("is required")
+    .withMessage(ERROR.NO_EMAIL)
     .isEmail()
-    .withMessage("is invalid email address"),
+    .withMessage(ERROR.INVALID_EMAIL_FORMAT),
   body("password")
     .notEmpty()
-    .withMessage("is required")
+    .withMessage(ERROR.NO_PASSWORD)
     .trim()
     .isLength({ min: 8 })
-    .withMessage("must be at least 8 chars long")
+    .withMessage(ERROR.INVALID_PASSWORD_LENGTH)
     .matches(/(?=.*\d)(?=.*[a-zA_Z])/)
-    .withMessage("must contain at least one letter and one number"),
+    .withMessage(ERROR.INVALID_PASSWORD_FORMAT)
+    .custom((value, { req }) => {
+      if (value !== req.body.password2) {
+        return false;
+      }
+      return true;
+    })
+    .withMessage(ERROR.PASSWORDS_NOT_MATCH),
 ];

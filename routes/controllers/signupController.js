@@ -4,24 +4,44 @@ const Group = require("../../models/Group");
 
 const ERROR = require("../../constants/error");
 const validationCheck = require("../../utils/validationCheck");
+const randomGroupColorCode = require("../../utils/randomGroupColorCode");
 
 module.exports = {
   signup: async function (req, res, next) {
     try {
-      const { nickname, email, password, role, groups } = req.body;
+      const { nickname, email, password, role, groupName } = req.body;
       const errorMessage = validationCheck(req);
 
       if (errorMessage) {
         return res.send(createError(400, { message: errorMessage }));
       }
 
-      await User.create({
+      const newUser = await User.create({
         nickname,
         email,
         password,
         role,
-        groups,
       });
+
+      if (role === "ADMIN") {
+        const newGroup = await Group.create({
+          name: groupName,
+          admin: newUser._id,
+          colorCode: randomGroupColorCode(),
+        });
+
+        await User.updateOne(
+          { _id: newUser._id },
+          {
+            $push: {
+              groups: {
+                groupId: newGroup._id,
+                status: "PARTICIPATING",
+              },
+            },
+          }
+        );
+      }
 
       return res.sendStatus(201);
     } catch (err) {

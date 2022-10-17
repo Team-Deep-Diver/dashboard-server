@@ -4,7 +4,7 @@ function validationCheck(req) {
   const { errors } = validationResult(req);
 
   if (errors.length > 0) {
-    const errorMessage = errors[0].param + " " + errors[0].msg;
+    const errorMessage = errors[0].msg;
     return errorMessage;
   }
 
