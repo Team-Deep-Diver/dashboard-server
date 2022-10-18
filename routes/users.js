@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const createError = require("http-errors");
 
 const Card = require("../models/Card");
+const User = require("../models/User");
+const ERROR = require("../constants/error");
 
 router.get("/", async function (req, res, next) {
   res.send("respond with a resource");
@@ -100,6 +103,35 @@ router.post("/:user_id/cards", async function (req, res, next) {
   ];
 
   await newCard.save();
+});
+
+router.get("/:user_id/groups", async function (req, res, next) {
+  try {
+    const { user_id } = req.params;
+    const userInfo = await User.findById(user_id);
+
+    if (!userInfo) {
+      return res.send(createError(400, ERROR.USER_NOT_FOUND));
+    }
+    return res.status(200).send(userInfo.groups);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
+  try {
+    const { user_id, group_id } = req.params;
+    const result =  await User.updateOne({ _id: user_id }, { $pull: { groups: { groupId: group_id } } });
+
+    if (result.modifiedCount === 0) {
+      return res.send(createError(400, ERROR.GROUP_NOT_FOUND));
+    }
+
+    res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
