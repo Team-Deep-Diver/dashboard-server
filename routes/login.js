@@ -1,54 +1,28 @@
-require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const jwtVerify = require("../configs/jwt");
-const { validateAuth, validateLogin } = require("../middlewares/validateLogin");
+const passport = require("passport");
 
-const User = require("../models/User");
-
-router.post(
-  "/",
-  validateLogin,
-  validateAuth,
-  jwtVerify.confirmToken,
-  jwtVerify.verifyToken,
-  (req, res, next) => {
-    passport.authenticate("login", async (err, user, info) => {
+router.post("/", (req, res, next) => {
+  passport.authenticate("local", (err, user) => {
+    console.log(user);
+    if (err || !user) {
+      return res.status(400).json({
+        message: "Something is not right",
+        user: user,
+      });
+    }
+    req.login(user, (err) => {
       if (err) {
-        console.error(`error ${err}`);
-        return next(err);
+        next(err);
       }
-
-      if (!user) {
-        return res.res.redirect("/login");
-      }
-
-      if (info) {
-        return res.status(400).json(info.message);
-      } else {
-        try {
-          const user = await User.findOne({ email: req.body.email });
-
-          if (user) {
-            const token = jwt.sign(
-              { email: user.email },
-              process.env.JWT_SECRET_KEY
-            );
-
-            return res.json({
-              auth: true,
-              token, //BE랑 FE가 어떻게 주고 받을지 결정 필요
-            });
-          }
-        } catch (err) {
-          next(err);
-        }
-      }
-    })(req, res, next);
-  }
-);
+      // jwt.sign('token내용', 'JWT secretkey')
+      const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
+      console.log(token);
+      return res.json({ user, token });
+    });
+  })(req, res, next);
+});
 
 module.exports = router;
