@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
+const groupsRouter = require("./routes/groups");
 
 const connectMongoDB = require("./configs/connectMongoDB");
 connectMongoDB();
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/signup", signupRouter);
+app.use("/groups", groupsRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
