@@ -33,7 +33,7 @@ exports.validateLogin = [
     .matches(/(?=.*\d)(?=.*[a-zA_Z])/)
     .withMessage(ERROR.INVALID_PASSWORD_FORMAT)
     .custom((value, { req }) => {
-      if (value !== req.body.password2) {
+      if (value !== req.body.passwordConfirm) {
         return false;
       }
       return true;
