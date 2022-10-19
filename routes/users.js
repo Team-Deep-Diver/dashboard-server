@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const jwtVerify = require("../configs/jwt");
 
 const Card = require("../models/Card");
+const User = require("../models/User");
 
 router.get("/", async function (req, res, next) {
   res.send("respond with a resource");
@@ -101,5 +103,22 @@ router.post("/:user_id/cards", async function (req, res, next) {
 
   await newCard.save();
 });
+
+router.get(
+  "/:user_id/groups",
+  jwtVerify.confirmToken,
+  jwtVerify.verifyToken,
+  async function (req, res, next) {
+    try {
+      const user = await User.findOne({ _id: req.body._id });
+
+      if (user.role === "MEMBER") {
+        res.json(user.groups);
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 module.exports = router;
