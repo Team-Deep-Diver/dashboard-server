@@ -4,6 +4,7 @@ const jwtVerify = require("../configs/jwt");
 
 const Card = require("../models/Card");
 const User = require("../models/User");
+const Group = require("../models/Group");
 
 router.get("/", async function (req, res, next) {
   res.send("respond with a resource");
@@ -112,7 +113,15 @@ router.get(
     try {
       const user = await User.findOne({ _id: req.body._id });
 
-      if (user.role === "MEMBER") {
+      if (user.role === "ADMIN") {
+        const group = await Group.findOne({ admin: user._id });
+
+        if (group) {
+          return res.json(group);
+        }
+
+        return res.json([]);
+      } else if (user.role === "MEMBER") {
         res.json(user.groups);
       }
     } catch (err) {
