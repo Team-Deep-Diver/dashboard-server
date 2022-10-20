@@ -1,8 +1,24 @@
+const passport = require("passport");
 const { body } = require("express-validator");
 const ERROR = require("../constants/error");
 
-exports.validateSignup = [
-  body("nickname").notEmpty().withMessage(ERROR.NO_NICKNAME),
+exports.validateAuth = (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (!user) {
+      return res.json("login", { message: ERROR.INVALID_ACCOUNT });
+    }
+
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+
+      return next();
+    });
+  })(req, res, next);
+};
+
+exports.validateLogin = [
   body("email")
     .notEmpty()
     .withMessage(ERROR.NO_EMAIL)
