@@ -103,4 +103,53 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
   }
 });
 
+router.post(
+  "/:user_id/groups/:group_id/:applicants_id",
+  async function (req, res, next) {
+    const { user_id, group_id, applicants_id } = req.params;
+    const resultStatus = req.body.status;
+
+    try {
+      const user = await User.findById(user_id);
+
+      await User.updateOne(
+        {
+          _id: applicants_id,
+          "groups.groupId": group_id,
+        },
+        { $set: { "groups.$.status": resultStatus } }
+      );
+
+      if (resultStatus === "PARTICIPATING") {
+        await Group.findOneAndUpdate(
+          { _id: group_id },
+          { $push: { members: applicants_id } },
+          (err, data) => {
+            if (err) {
+              console.error(err);
+              res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
+            }
+          }
+        );
+      }
+
+      await Group.findOneAndUpdate(
+        { _id: group_id },
+        { $pull: { applicants: applicants_id } },
+        (err, data) => {
+          if (err) {
+            console.error(err);
+            res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
+          }
+        }
+      );
+
+      res.status(201).json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(404).send({ message: ERROR.MEMBER_NOT_FOUND });
+    }
+  }
+);
+
 module.exports = router;
