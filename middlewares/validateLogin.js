@@ -3,12 +3,27 @@ const { body } = require("express-validator");
 const ERROR = require("../constants/error");
 
 exports.validateAuth = (req, res, next) => {
+  // passport.authenticate("local", (err, user, info) => {
+  //   if (err) {
+  //     console.log(err);
+  //     const error = new Error("Internal Server Error");
+  //     error.status = 500;
+  //     return next(error);
+  //   }
+  //   if (!user) {
+  //     return res.json("login", { errorMsg: info.message });
+  //   }
+  //   res.locals.user = user;
+  //   next();
+  // })(req, res, next);
   passport.authenticate("local", (err, user, info) => {
     if (!user) {
       return res.json("login", { message: ERROR.INVALID_ACCOUNT });
     }
-
+    console.log(111);
     req.login(user, (err) => {
+      console.log(222);
+
       if (err) {
         return next(err);
       }

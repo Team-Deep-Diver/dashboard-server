@@ -8,6 +8,7 @@ const randomGroupColorCode = require("../../utils/randomGroupColorCode");
 
 module.exports = {
   signup: async function (req, res, next) {
+    console.log("signpuouououo");
     try {
       const { nickname, email, password, role, groupName } = req.body;
       const errorMessage = validationCheck(req);

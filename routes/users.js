@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const jwtVerify = require("../configs/jwt");
 
 const Card = require("../models/Card");
 const User = require("../models/User");
@@ -105,29 +104,23 @@ router.post("/:user_id/cards", async function (req, res, next) {
   await newCard.save();
 });
 
-router.get(
-  "/:user_id/groups",
-  jwtVerify.confirmToken,
-  jwtVerify.verifyToken,
-  async function (req, res, next) {
-    try {
-      const user = await User.findOne({ _id: req.body._id });
+router.get("/:user_id/groups", async function (req, res, next) {
+  try {
+    const { _id } = req.body;
+    const user = await User.findOne({ _id });
 
-      if (user.role === "ADMIN") {
-        const group = await Group.findOne({ admin: user._id });
+    if (user.role === "ADMIN") {
+      const group = await Group.findOne({ admin: user._id });
 
-        if (group) {
-          return res.json(group);
-        }
-
-        return res.json([]);
-      } else if (user.role === "MEMBER") {
-        res.json(user.groups);
-      }
-    } catch (err) {
-      next(err);
+      return res.status(200).json(group);
     }
+
+    if (user.role === "MEMBER") {
+      res.json(user.groups);
+    }
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 module.exports = router;
