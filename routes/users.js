@@ -5,7 +5,6 @@ const createError = require("http-errors");
 
 const User = require("../models/User");
 const Card = require("../models/Card");
-const User = require("../models/User");
 const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");

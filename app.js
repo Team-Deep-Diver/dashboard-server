@@ -9,7 +9,6 @@ const passport = require("passport");
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
-const signupRouter = require("./routes/signup");
 const groupsRouter = require("./routes/groups");
 
 const connectMongoDB = require("./configs/connectMongoDB");
@@ -35,8 +34,8 @@ app.use(passport.session());
 passportConfig();
 
 app.use("/", indexRouter);
-app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
+app.use("/login", loginRouter);
 app.use(passport.authenticate("jwt", { session: false }));
 
 app.use("/users", usersRouter);
