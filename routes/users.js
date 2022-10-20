@@ -1,9 +1,11 @@
 const express = require("express");
+const createError = require("http-errors");
 const router = express.Router();
 const createError = require("http-errors");
 
-const Card = require("../models/Card");
 const User = require("../models/User");
+const Card = require("../models/Card");
+const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
 
@@ -136,6 +138,52 @@ router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
     res.sendStatus(204);
   } catch (err) {
     next(err);
+  }
+});
+
+router.post("/:user_id/groups/:group_id", async function (req, res, next) {
+  const userId = req.params["user_id"];
+  const groupId = req.params["group_id"];
+
+  try {
+    const user = await User.findOne({ _id: userId });
+
+    const appliedGroup = user.groups.filter((el) => {
+      return String(el.groupId) === groupId;
+    }).length;
+
+    if (appliedGroup) {
+      return res.send(createError(400, ERROR.GROUP_APPLICATION_DUPLICATE));
+    }
+  } catch {
+    return res.send(createError(404, ERROR.USER_NOT_FOUND));
+  }
+
+  try {
+    await Group.findOneAndUpdate(
+      { _id: groupId },
+      {
+        $push: {
+          applicants: userId,
+        },
+      }
+    );
+
+    await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $push: {
+          groups: [
+            {
+              groupId,
+              status: "PENDING",
+            },
+          ],
+        },
+      }
+    );
+  } catch (err) {
+    return res.send(createError(404, ERROR.GROUP_NOT_FOUND));
   }
 });
 

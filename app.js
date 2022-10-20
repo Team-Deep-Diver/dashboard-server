@@ -8,7 +8,9 @@ require("./configs/passport");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
+const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
+const groupsRouter = require("./routes/groups");
 
 const connectMongoDB = require("./configs/connectMongoDB");
 connectMongoDB();
@@ -24,7 +26,9 @@ app.use(passport.initialize());
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+app.use("/groups", groupsRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
