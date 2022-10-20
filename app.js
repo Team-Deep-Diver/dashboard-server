@@ -9,10 +9,6 @@ const passport = require("passport");
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
-<<<<<<< HEAD
-=======
-const signupRouter = require("./routes/signup");
->>>>>>> feat/그룹관리
 const groupsRouter = require("./routes/groups");
 
 const connectMongoDB = require("./configs/connectMongoDB");
