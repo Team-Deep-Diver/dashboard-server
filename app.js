@@ -7,8 +7,11 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const usersRouter = require("./routes/users");
+const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
 const signupRouter = require("./routes/signup");
+const groupsRouter = require("./routes/groups");
+
 const connectMongoDB = require("./configs/connectMongoDB");
 const passportConfig = require("./configs/passportConfig");
 connectMongoDB();
@@ -30,10 +33,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 passportConfig();
+
+app.use("/", indexRouter);
 app.use("/login", loginRouter);
 app.use("/signup", signupRouter);
 app.use(passport.authenticate("jwt", { session: false }));
+
 app.use("/users", usersRouter);
+app.use("/groups", groupsRouter);
+
 app.use(function (req, res, next) {
   next(createError(404));
 });
