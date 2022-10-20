@@ -10,6 +10,7 @@ const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
 const groupsRouter = require("./routes/groups");
+const logoutRouter = require("./routes/logout");
 
 const connectMongoDB = require("./configs/connectMongoDB");
 const passportConfig = require("./configs/passportConfig");
@@ -40,6 +41,7 @@ app.use(passport.authenticate("jwt", { session: false }));
 
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
+app.use("/logout", logoutRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
