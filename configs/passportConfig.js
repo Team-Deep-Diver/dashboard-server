@@ -32,13 +32,11 @@ module.exports = () => {
             return done(null, false, { message: "No account" });
           }
 
+          if (user.password !== password) {
+            return done(null, false, { message: "Incorrect password" });
+          }
+
           return done(null, user);
-          // const isValid = await validPassord(password, user.password);
-          // if (isValid) {
-          //   return done(null, user);
-          // } else {
-          //   return done(null, false, { message: "Incorrect password" });
-          // }
         } catch (err) {
           done(err);
         }
@@ -46,22 +44,24 @@ module.exports = () => {
     )
   );
 
-  //JWT Strategy
   passport.use(
     new JWTStrategy(
       {
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: ExtractJWT.fromHeader("authorization"),
         secretOrKey: process.env.JWT_SECRET,
       },
-      function (jwtPayload, done) {
-        console.log(jwtPayload);
-        return User.findOneById(jwtPayload.id)
-          .then((user) => {
-            return done(null, user);
-          })
-          .catch((err) => {
-            return done(err);
-          });
+      async (jwtPayload, done) => {
+        try {
+          const user = await User.findById(jwtPayload._id);
+
+          if (!user) {
+            return done(null, false, { message: "Authorization error" });
+          }
+
+          return done(null, user);
+        } catch (err) {
+          done(err);
+        }
       }
     )
   );

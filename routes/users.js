@@ -3,8 +3,9 @@ const router = express.Router();
 
 const Card = require("../models/Card");
 
-router.get("/", async function (req, res, next) {
-  res.send("respond with a resource");
+router.get("/:user_id", async function (req, res, next) {
+  // 카드 정보 전달하기 로직 작성
+  return res.sendStatus(200);
 });
 
 router.get("/:user_id/cards", async function (req, res, next) {
