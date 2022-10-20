@@ -117,6 +117,16 @@ router.get("/:user_id/groups", async function (req, res, next) {
       return res.send(createError(400, ERROR.USER_NOT_FOUND));
     }
 
+    if (userInfo.role === "ADMIN") {
+      const group = await Group.findOne({ admin: user._id });
+
+      return res.status(200).json(group);
+    }
+
+    if (userInfo.role === "MEMBER") {
+      res.json(user.groups);
+    }
+
     return res.status(200).send(userInfo.groups);
   } catch (err) {
     next(err);
