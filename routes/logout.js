@@ -1,13 +1,15 @@
 const espress = require("express");
 const router = espress.Router();
 
+const ERROR = require("../constants/error");
+
 router.post("/", function (req, res, next) {
   req.logout((err) => {
     if (err) {
-      return next(err);
+      return res.send(createError(400, ERROR.NO_ACCOUNT));
     }
 
-    res.redirect("/login");
+    return res.status(200).redirect("/login");
   });
 });
 
