@@ -17,7 +17,11 @@ module.exports = (server) => {
       const { user_id, currentDate } = data;
       const myCards = await Card.aggregate([
         { $match: { createdBy: user_id } },
-        { $match: { "snapshots.createdAt": new Date(currentDate).toLocaleDateString() } },
+        {
+          $match: {
+            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
+          },
+        },
       ]);
 
       socket.emit("getMyCards", { myCards });
@@ -26,6 +30,7 @@ module.exports = (server) => {
     socket.on("createCard", async (data) => {
       const { socketValue } = data;
       const {
+        currentDate,
         createdBy,
         category,
         startDate,
@@ -62,6 +67,17 @@ module.exports = (server) => {
         period: { startDate, endDate },
         snapshots: [todaySnapshot],
       });
+
+      const myCards = await Card.aggregate([
+        { $match: { createdBy } },
+        {
+          $match: {
+            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
+          },
+        },
+      ]);
+
+      socket.emit("getMyCards", { myCards });
     });
 
     socket.on("sendNotice", (data) => {
