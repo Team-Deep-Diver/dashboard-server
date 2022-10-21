@@ -30,6 +30,7 @@ module.exports = (server) => {
     socket.on("createCard", async (data) => {
       const { socketValue } = data;
       const {
+        currentDate,
         createdBy,
         category,
         startDate,
