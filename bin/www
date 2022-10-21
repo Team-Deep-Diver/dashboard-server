@@ -4,23 +4,17 @@ require("dotenv").config();
 const app = require("../app");
 const debug = require("debug")("server:server");
 const http = require("http");
-const { Server } = require("socket.io");
+const socket = require("../configs/connectSocket");
 
 const port = normalizePort(process.env.PORT);
 app.set("port", port);
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-  cors: {
-    origin: process.env.SOCKET_CLIENT_HOST,
-    methods: ["GET", "PUT", "POST", "DELETE"],
-  },
-});
-
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
+socket(server);
 
 function normalizePort(val) {
   const port = parseInt(val, 10);
@@ -62,5 +56,3 @@ function onListening() {
   const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
-
-module.exports = io;

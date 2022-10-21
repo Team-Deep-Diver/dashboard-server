@@ -6,6 +6,7 @@ const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
+
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
@@ -33,21 +34,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 passportConfig();
 
-app.use("/", indexRouter);
+// app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
-app.use(passport.authenticate("jwt", { session: false }));
 
+// app.use(passport.authenticate("jwt", { session: false }));
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
 });
+
 app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
   res.status(err.status || 500);
   res.send(err.message);
 });
+
 module.exports = app;

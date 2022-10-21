@@ -19,4 +19,4 @@ const snapshotSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Snapshot", snapshotSchema);
+// module.exports = mongoose.model("Snapshot", snapshotSchema);
