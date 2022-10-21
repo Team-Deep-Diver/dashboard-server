@@ -106,12 +106,10 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
 router.post(
   "/:user_id/groups/:group_id/:applicants_id",
   async function (req, res, next) {
-    const { user_id, group_id, applicants_id } = req.params;
+    const { group_id, applicants_id } = req.params;
     const resultStatus = req.body.status;
 
     try {
-      const user = await User.findById(user_id);
-
       await User.updateOne(
         {
           _id: applicants_id,
@@ -121,30 +119,38 @@ router.post(
       );
 
       if (resultStatus === "PARTICIPATING") {
-        await Group.findOneAndUpdate(
+        const result = await Group.findOneAndUpdate(
           { _id: group_id },
           { $push: { members: applicants_id } },
-          (err, data) => {
-            if (err) {
-              console.error(err);
-              res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
-            }
-          }
+          { new: true }
         );
-      }
 
-      await Group.findOneAndUpdate(
+        if (result) {
+          res.sendStatus(201);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(404).send({ message: ERROR.MEMBER_NOT_FOUND });
+    }
+  }
+);
+
+router.delete(
+  "/:user_id/groups/:group_id/:applicants_id",
+  async function (req, res, next) {
+    const { user_id, group_id, applicants_id } = req.params;
+
+    try {
+      const result = await Group.findOneAndUpdate(
         { _id: group_id },
         { $pull: { applicants: applicants_id } },
-        (err, data) => {
-          if (err) {
-            console.error(err);
-            res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
-          }
-        }
+        { new: true }
       );
 
-      res.status(201).json(user);
+      if (result) {
+        res.sendStatus(204);
+      }
     } catch (err) {
       console.error(err);
       res.status(404).send({ message: ERROR.MEMBER_NOT_FOUND });
