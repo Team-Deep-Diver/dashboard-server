@@ -1,6 +1,8 @@
 const { Server } = require("socket.io");
 
 const { Card, Snapshot } = require("../models/Card");
+const Notice = require("../models/Notice");
+const Group = require("../models/Group");
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -152,8 +154,22 @@ module.exports = (server) => {
       socket.emit("getMyCards", { myCards });
     });
 
-    socket.on("sendNotice", (data) => {
-      console.log(data);
+    socket.on("sendNotice", async (data) => {
+      const { socketValue } = data;
+      const { adminId, groupList, startDate, endDate, groupNotice } =
+        socketValue;
+      const newNotice = await Notice.create({
+        message: groupNotice,
+        period: { startDate, endDate },
+      });
+
+      const adminGroup = await Group.findOneAndUpdate(
+        { admin: adminId },
+        { $push: { notices: newNotice._id } },
+        { new: true }
+      );
+      const { name, colorCode } = adminGroup;
+      socket.emit(groupList[0], { name, colorCode, newNotice });
     });
 
     socket.on("disconnect", () => {

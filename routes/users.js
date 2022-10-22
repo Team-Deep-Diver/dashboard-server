@@ -1,5 +1,4 @@
 const express = require("express");
-const createError = require("http-errors");
 const router = express.Router();
 
 const User = require("../models/User");
@@ -7,8 +6,11 @@ const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
 
-router.get("/", async function (req, res, next) {
-  res.send("respond with a resource");
+router.get("/:user_id", async function (req, res, next) {
+  const { user_id } = req.params;
+  const userInfo = await User.findById(user_id);
+
+  res.status(200).json(userInfo);
 });
 
 router.get("/:user_id", async function (req, res, next) {
