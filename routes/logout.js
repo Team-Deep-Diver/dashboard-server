@@ -9,7 +9,7 @@ router.post("/", function (req, res, next) {
       return res.send(createError(400, ERROR.NO_ACCOUNT));
     }
 
-    return res.status(200).redirect("/login");
+    return res.sendStatus(200);
   });
 });
 
