@@ -80,6 +80,78 @@ module.exports = (server) => {
       socket.emit("getMyCards", { myCards });
     });
 
+    socket.on("modifyCard", async (data) => {
+      const { socketValue } = data;
+      const {
+        snapshotId,
+        currentDate,
+        createdBy,
+        category,
+        startDate,
+        endDate,
+        colorCode,
+        todos,
+        imgUrl,
+        description,
+        x,
+        y,
+      } = socketValue;
+
+      await Snapshot.findOneAndUpdate(
+        {
+          _id: snapshotId,
+        },
+        {
+          category: category,
+          todos: todos,
+          imgUrl: imgUrl,
+          description: description,
+        }
+      );
+
+      const myCards = await Card.aggregate([
+        { $match: { createdBy } },
+        {
+          $match: {
+            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
+          },
+        },
+      ]);
+
+      socket.emit("getMyCards", { myCards });
+    });
+
+    socket.on("deleteCard", async (data) => {
+      const { socketValue } = data;
+      const {
+        snapshotId,
+        currentDate,
+        createdBy,
+        category,
+        startDate,
+        endDate,
+        colorCode,
+        todos,
+        imgUrl,
+        description,
+        x,
+        y,
+      } = socketValue;
+
+      await Snapshot.findOneAndDelete({ _id: snapshotId });
+
+      const myCards = await Card.aggregate([
+        { $match: { createdBy } },
+        {
+          $match: {
+            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
+          },
+        },
+      ]);
+
+      socket.emit("getMyCards", { myCards });
+    });
+
     socket.on("sendNotice", (data) => {
       console.log(data);
     });
