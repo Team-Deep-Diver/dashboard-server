@@ -9,9 +9,9 @@ const ERROR = require("../constants/error");
 
 router.get("/:user_id", async function (req, res, next) {
   const { user_id } = req.params;
-
   const userInfo = await User.findById(user_id);
-  res.status(200).json({ userInfo });
+
+  res.status(200).json(userInfo);
 });
 
 router.get("/:user_id/groups", async function (req, res, next) {
@@ -24,13 +24,18 @@ router.get("/:user_id/groups", async function (req, res, next) {
     }
 
     if (userInfo.role === "ADMIN") {
-      const group = await Group.findOne({ admin: user._id });
+      const applicants = await Group.findOne({ admin: user_id }).populate(
+        "applicants"
+      );
+      const memebers = await Group.findOne({ admin: user_id }).populate(
+        "members"
+      );
 
-      return res.status(200).json(group);
+      return res.status(200).json({ applicants, memebers });
     }
 
     if (userInfo.role === "MEMBER") {
-      res.json(user.groups);
+      return res.json(userInfo.groups);
     }
 
     return res.status(200).send(userInfo.groups);
@@ -76,7 +81,7 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
   }
 
   try {
-    await Group.findOneAndUpdate(
+    const group = await Group.findOneAndUpdate(
       { _id: groupId },
       {
         $push: {
@@ -91,6 +96,7 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
         $push: {
           groups: [
             {
+              groupName: group.name,
               groupId,
               status: "PENDING",
             },
