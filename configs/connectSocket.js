@@ -23,57 +23,58 @@ module.exports = (server) => {
           $lte: new Date(currentDate).toLocaleDateString(),
         },
         "period.endDate": { $gte: new Date(currentDate).toLocaleDateString() },
-      }).populate("Snapshot");
-      console.log(myCards);
+      }).populate({
+        path: "snapshots",
+        match: { createdAt: new Date(currentDate).toLocaleDateString() }
+      });
 
-      if (myCards.length > 0) {
+      if (myCards[0]?.snapshots.length > 0) {
         return socket.emit("getMyCards", myCards);
       }
 
-      console.log("실행되고있음?");
-      // 우선 해당하는 카드 리스트 모두 찾아서
-      // 각 카드의 필요한 스냅샷을 찾은 뒤,
-      // 해당 스냅샷의 새로운 스냅샷을 저장
-      const periodMatchedCards = await Card.find({
+      const recentCards = await Card.find({
         createdBy: user_id,
         "period.startDate": {
           $lte: new Date(currentDate).toLocaleDateString(),
         },
         "period.endDate": { $gte: new Date(currentDate).toLocaleDateString() },
-        "snapshots.createdAt": {
+      }).populate({
+        path: "snapshots",
+        match: { createdAt: { $lte: new Date(currentDate).toLocaleDateString() } }
+      });
+
+      if (recentCards.length === 0) {
+        return socket.emit("getMyCards", []);
+      }
+
+      recentCards.forEach(async (card) => {
+        const newSnapshot = await Snapshot.create({
+          createdAt: new Date(currentDate).toLocaleDateString(),
+          category: card.snapshots[card.snapshots.length - 1].category,
+          value: card.snapshots[0].value,
+          coordinate: card.snapshots[0].coordinate
+        });
+
+        await Card.findByIdAndUpdate(card._id, {
+          $push: { snapshots: newSnapshot._id }
+        });
+      })
+
+      const myNewCards = await Card.find({
+        createdBy: user_id,
+        "period.startDate": {
           $lte: new Date(currentDate).toLocaleDateString(),
         },
+        "period.endDate": { $gte: new Date(currentDate).toLocaleDateString() },
+      }).populate({
+        path: "snapshots",
+        match: { createdAt: new Date(currentDate).toLocaleDateString() }
       });
 
-      console.log(periodMatchedCards);
-      periodMatchedCards.forEach(async (card) => {
-        const recentSnapshot = card.snapshots[card.snapshots.length - 1];
-        console.log(recentSnapshot);
+      if (myNewCards[0]?.snapshots.length > 0) {
+        return socket.emit("getMyCards", myNewCards);
+      }
 
-        const newnew = await Card.updateOne(
-          {
-            createdBy: user_id,
-            "period.startDate": {
-              $lte: new Date(currentDate).toLocaleDateString(),
-            },
-            "period.endDate": {
-              $gte: new Date(currentDate).toLocaleDateString(),
-            },
-          },
-          {
-            $push: {
-              snapshots: {
-                createdAt: new Date(currentDate).toLocaleDateString(),
-                category: recentSnapshot.category,
-                value: recentSnapshot.value,
-                coordinate: recentSnapshot.coordinate,
-              },
-            },
-          }
-        );
-
-        console.log("여기여기", newnew);
-      });
     });
 
     socket.on("createCard", async (data) => {
@@ -101,7 +102,7 @@ module.exports = (server) => {
           description,
         },
         coordinate: { x, y },
-      })
+      });
 
       await Card.create({
         createdBy,
@@ -110,12 +111,18 @@ module.exports = (server) => {
           startDate: new Date(startDate).toLocaleDateString(),
           endDate: new Date(endDate).toLocaleDateString(),
         },
-        snapshots: snapshot._id
+        snapshots: snapshot._id,
       });
 
       const myCards = await Card.find({
         createdBy,
-        "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
+        "period.startDate": {
+          $lte: new Date(currentDate).toLocaleDateString(),
+        },
+        "period.endDate": { $gte: new Date(currentDate).toLocaleDateString() },
+      }).populate({
+        path: "snapshots",
+        $match: { createdAt: new Date(currentDate).toLocaleDateString() },
       });
 
       socket.emit("getMyCards", { myCards });
