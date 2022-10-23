@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   groups: [
     {
       groupId: { type: mongoose.Schema.Types.ObjectId, ref: "Group" },
+      groupName: { type: String },
       status: {
         type: String,
         enum: ["PARTICIPATING", "PENDING", "REJECTED"],
