@@ -112,12 +112,10 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
 router.post(
   "/:user_id/groups/:group_id/:applicant_id",
   async function (req, res, next) {
-    const { user_id, group_id, applicant_id } = req.params;
+    const { group_id, applicant_id } = req.params;
     const resultStatus = req.body.status;
 
     try {
-      await User.findById(user_id);
-
       await User.updateOne(
         {
           _id: applicant_id,
@@ -127,7 +125,7 @@ router.post(
       );
 
       if (resultStatus === "PARTICIPATING") {
-        await Group.findOneAndUpdate(
+        Group.findOneAndUpdate(
           { _id: group_id },
           { $push: { members: applicant_id } },
           (err, data) => {
@@ -139,7 +137,7 @@ router.post(
         );
       }
 
-      await Group.findOneAndUpdate(
+      Group.findOneAndUpdate(
         { _id: group_id },
         { $pull: { applicants: applicant_id } },
         (err, data) => {
