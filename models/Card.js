@@ -1,24 +1,5 @@
 const mongoose = require("mongoose");
 
-const snapshotSchema = new mongoose.Schema({
-  createdAt: { type: String, required: true },
-  category: { type: String, required: true },
-  value: {
-    todos: [
-      {
-        text: { type: String, required: true },
-        checked: { type: Boolean, default: false },
-      },
-    ],
-    imgUrl: { type: String },
-    description: { type: String },
-  },
-  coordinate: {
-    x: { type: Number, required: true },
-    y: { type: Number, required: true },
-  },
-});
-
 const cardSchema = new mongoose.Schema({
   createdBy: { type: String, required: true },
   colorCode: {
@@ -27,13 +8,10 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   period: {
-    startDate: { type: Date, default: Date.now },
-    endDate: { type: Date, default: Date.now },
+    startDate: { type: String },
+    endDate: { type: String },
   },
-  snapshots: [snapshotSchema],
+  snapshots: [{ type: mongoose.Schema.Types.ObjectId, ref: "Snapshot" }],
 });
 
-module.exports = {
-  Card: mongoose.model("Card", cardSchema),
-  Snapshot: mongoose.model("Snapshot", snapshotSchema),
-};
+module.exports = mongoose.model("Card", cardSchema);
