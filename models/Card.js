@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const snapshotSchema = new mongoose.Schema({
-  createdAt: { type: Date, required: true },
+  createdAt: { type: String, required: true },
   category: { type: String, required: true },
   value: {
     todos: [
@@ -33,4 +33,7 @@ const cardSchema = new mongoose.Schema({
   snapshots: [snapshotSchema],
 });
 
-module.exports = mongoose.model("Card", cardSchema);
+module.exports = {
+  Card: mongoose.model("Card", cardSchema),
+  Snapshot: mongoose.model("Snapshot", snapshotSchema),
+};
