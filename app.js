@@ -38,6 +38,19 @@ passportConfig();
 // app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+// app.use(passport.authenticate("jwt", { session: false }));
+
+// 얘는 곧 지울 것. 서버에 올라가 있는 애임.
+app.use("/logout", function (req, res, next) {
+  req.logout((err) => {
+    if (err) {
+      return res.send(createError(400, ERROR.NO_ACCOUNT));
+    }
+
+    // return res.status(200).redirect("/login");
+    return res.status(200).send("logout🔥");
+  });
+});
 
 // app.use(passport.authenticate("jwt", { session: false }));
 app.use("/users", usersRouter);

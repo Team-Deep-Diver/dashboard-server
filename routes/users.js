@@ -7,6 +7,10 @@ const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
 
+router.get("/", async function (req, res, next) {
+  res.send("respond with a resource");
+});
+
 router.get("/:user_id", async function (req, res, next) {
   const { user_id } = req.params;
   const userInfo = await User.findById(user_id);
@@ -17,6 +21,7 @@ router.get("/:user_id", async function (req, res, next) {
 router.get("/:user_id/groups", async function (req, res, next) {
   try {
     const { user_id } = req.params;
+
     const userInfo = await User.findById(user_id);
 
     if (!userInfo) {
@@ -27,11 +32,11 @@ router.get("/:user_id/groups", async function (req, res, next) {
       const applicants = await Group.findOne({ admin: user_id }).populate(
         "applicants"
       );
-      const memebers = await Group.findOne({ admin: user_id }).populate(
+      const members = await Group.findOne({ admin: user_id }).populate(
         "members"
       );
 
-      return res.status(200).json({ applicants, memebers });
+      return res.status(200).json({ applicants, members });
     }
 
     if (userInfo.role === "MEMBER") {
