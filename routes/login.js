@@ -6,18 +6,22 @@ const createError = require("http-errors");
 
 const ERROR = require("../constants/error");
 
-router.post("/", (req, res, next) => {
-  passport.authenticate("local", (err, user) => {
-    if (err || !user) {
-      return res.send(createError(400, ERROR.USER_NOT_FOUND));
-    }
-    req.login(user, (err) => {
-      if (err) {
-        next(err);
+router.post("/", async (req, res, next) => {
+  try {
+    passport.authenticate("local", (err, user) => {
+      if (err || !user) {
+        return res.send(createError(400, ERROR.USER_NOT_FOUND));
       }
-      const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
-      return res.json({ user, token });
-    });
-  })(req, res, next);
+
+      if (user) {
+        const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
+
+        res.json({ user, token: "Bearer " + token });
+      }
+    })(req, res, next);
+  } catch (err) {
+    res.send(createError(400, ERROR.INVALID_ACCOUNT));
+  }
 });
+
 module.exports = router;
