@@ -157,4 +157,33 @@ router.post(
   }
 );
 
+router.get("/:user_id/groupNotice", async function (req, res, next) {
+  try {
+    const { user_id } = req.params;
+
+    const result = await User.find({
+      _id: user_id,
+    }).populate({
+      path: "groups.groupId",
+      populate: {
+        path: "notices",
+        match: {
+          "notices.period.startDate": { $lte: new Date().toLocaleDateString() },
+          "notices.period.endDate": { $gte: new Date().toLocaleDateString() },
+        },
+      },
+    });
+
+    const { name, notices, colorCode } = result[0].groups[0].groupId;
+
+    res.status(200).json({
+      groupName: name,
+      colorCode: colorCode,
+      notice: notices,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

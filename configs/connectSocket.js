@@ -5,6 +5,8 @@ const getRecentCards = require("../utils/getRecentCards");
 const updateRecentCards = require("../utils/updateRecentCards");
 const createNewCard = require("../utils/createNewCard");
 const modifyCard = require("../utils/modifyCard");
+const deleteCard = require("../utils/deleteCard");
+const createNewNotice = require("../utils/createNewNotice");
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -46,10 +48,9 @@ module.exports = (server) => {
       const { createdBy, currentDate } = socketValue;
 
       await createNewCard(socketValue);
-
       const myCards = await getTodayCards(createdBy, currentDate);
 
-      socket.emit("getMyCards", { myCards });
+      socket.emit("getMyCards", myCards);
     });
 
     socket.on("modifyCard", async (data) => {
@@ -57,14 +58,38 @@ module.exports = (server) => {
       const { createdBy, currentDate } = socketValue;
 
       await modifyCard(socketValue);
-
       const myCards = await getTodayCards(createdBy, currentDate);
 
-      socket.emit("getMyCards", { myCards });
+      socket.emit("getMyCards", myCards);
     });
 
-    socket.on("sendNotice", (data) => {
-      console.log(data);
+    socket.on("deleteCard", async (data) => {
+      const { socketValue } = data;
+      const { cardId, snapshotId, createdBy, currentDate } = socketValue;
+
+      await deleteCard(cardId, snapshotId);
+      const myCards = await getTodayCards(createdBy, currentDate);
+
+      socket.emit("getMyCards", myCards);
+    });
+
+    socket.on("sendNotice", async (data) => {
+      const { socketValue } = data;
+      const { adminId, groupList, startDate, endDate, groupNotice } =
+        socketValue;
+
+      const { name, colorCode, newNotice } = createNewNotice(
+        adminId,
+        startDate,
+        endDate,
+        groupNotice
+      );
+
+      socket.emit(groupList[0], {
+        groupName: name,
+        colorCode,
+        notice: newNotice,
+      });
     });
 
     socket.on("disconnect", () => {

@@ -26,7 +26,7 @@ async function createNewCard(socketValue) {
     coordinate: { x, y },
   });
 
-  await Card.create({
+  const newCard = await Card.create({
     createdBy,
     colorCode,
     period: {
@@ -35,6 +35,8 @@ async function createNewCard(socketValue) {
     },
     snapshots: snapshot._id,
   });
+
+  return newCard._id;
 }
 
 module.exports = createNewCard;
