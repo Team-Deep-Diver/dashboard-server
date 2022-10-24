@@ -3,14 +3,11 @@ const createError = require("http-errors");
 const router = express.Router();
 
 const User = require("../models/User");
-const Card = require("../models/Card");
 const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
-const auth = require("../middlewares/auth");
 
-//분리 시도중
-router.get("/:user_id", auth, async (req, res) => {
+router.get("/:user_id", async (req, res) => {
   try {
     const { user_id } = req.params;
     const userInfo = await User.findById(user_id);
@@ -20,28 +17,6 @@ router.get("/:user_id", auth, async (req, res) => {
     res.send(createError(403, ERROR.AUTH_FORBIDDEN));
   }
 });
-
-//됐던거
-// router.get(
-//   "/:user_id",
-//   passport.authenticate("jwt", { session: false }),
-//   async (req, res) => {
-//     try {
-//       const token = req.headers.authorization.split(" ")[1];
-
-//       if (token) {
-//         const { user_id } = req.params;
-//         const userInfo = await User.findById(user_id);
-
-//         res.status(200).json(userInfo);
-//       }
-//
-//      res.send(createError(400, ERROR.INVALID_ACCOUNT));
-//     } catch (err) {
-//       res.send(createError(400, ERROR.AUTH_FORBIDDEN));
-//     }
-//   }
-// );
 
 router.get("/:user_id/groups", async function (req, res, next) {
   try {

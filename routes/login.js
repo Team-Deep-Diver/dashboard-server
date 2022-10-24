@@ -13,9 +13,11 @@ router.post("/", async (req, res, next) => {
         return res.send(createError(400, ERROR.USER_NOT_FOUND));
       }
 
-      const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
+      if (user) {
+        const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
 
-      return res.json({ user, token: "Bearer " + token });
+        res.json({ user, token: "Bearer " + token });
+      }
     })(req, res, next);
   } catch (err) {
     res.send(createError(400, ERROR.INVALID_ACCOUNT));

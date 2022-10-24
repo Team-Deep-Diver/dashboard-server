@@ -5,7 +5,8 @@ const createError = require("http-errors");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const { passport } = require("./configs/passportConfig");
+const passport = require("passport");
+const passportConfig = require("./configs/passportConfig");
 
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
@@ -32,7 +33,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
+passportConfig();
 // app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
