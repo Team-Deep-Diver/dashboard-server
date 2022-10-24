@@ -5,7 +5,7 @@ const createError = require("http-errors");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const passport = require("passport");
+const { passport } = require("./configs/passportConfig");
 
 const usersRouter = require("./routes/users");
 const signupRouter = require("./routes/signup");
@@ -14,7 +14,6 @@ const groupsRouter = require("./routes/groups");
 const logoutRouter = require("./routes/logout");
 
 const connectMongoDB = require("./configs/connectMongoDB");
-const passportConfig = require("./configs/passportConfig");
 connectMongoDB();
 const app = express();
 
@@ -33,26 +32,11 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-passportConfig();
 
 // app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
-// app.use(passport.authenticate("jwt", { session: false }));
-
-// 얘는 곧 지울 것. 서버에 올라가 있는 애임.
-app.use("/logout", function (req, res, next) {
-  req.logout((err) => {
-    if (err) {
-      return res.send(createError(400, ERROR.NO_ACCOUNT));
-    }
-
-    // return res.status(200).redirect("/login");
-    return res.status(200).send("logout🔥");
-  });
-});
-
-// app.use(passport.authenticate("jwt", { session: false }));
+app.use(passport.authenticate("jwt", { session: false }));
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 app.use("/logout", logoutRouter);

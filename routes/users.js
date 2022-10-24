@@ -3,25 +3,49 @@ const createError = require("http-errors");
 const router = express.Router();
 
 const User = require("../models/User");
+const Card = require("../models/Card");
 const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
+const auth = require("../middlewares/auth");
 
-router.get("/", async function (req, res, next) {
-  res.send("respond with a resource");
+//분리 시도중
+router.get("/:user_id", auth, async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    const userInfo = await User.findById(user_id);
+
+    res.status(200).json(userInfo);
+  } catch (err) {
+    res.send(createError(403, ERROR.AUTH_FORBIDDEN));
+  }
 });
 
-router.get("/:user_id", async function (req, res, next) {
-  const { user_id } = req.params;
-  const userInfo = await User.findById(user_id);
+//됐던거
+// router.get(
+//   "/:user_id",
+//   passport.authenticate("jwt", { session: false }),
+//   async (req, res) => {
+//     try {
+//       const token = req.headers.authorization.split(" ")[1];
 
-  res.status(200).json(userInfo);
-});
+//       if (token) {
+//         const { user_id } = req.params;
+//         const userInfo = await User.findById(user_id);
+
+//         res.status(200).json(userInfo);
+//       }
+//
+//      res.send(createError(400, ERROR.INVALID_ACCOUNT));
+//     } catch (err) {
+//       res.send(createError(400, ERROR.AUTH_FORBIDDEN));
+//     }
+//   }
+// );
 
 router.get("/:user_id/groups", async function (req, res, next) {
   try {
     const { user_id } = req.params;
-
     const userInfo = await User.findById(user_id);
 
     if (!userInfo) {
