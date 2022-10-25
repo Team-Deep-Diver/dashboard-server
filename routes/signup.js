@@ -10,8 +10,8 @@ const {
 
 router.route("/").post(validateSignup, signup);
 
-router.route("/check-email").get(checkEmailDuplicate);
+router.route("/check-email").post(checkEmailDuplicate);
 
-router.route("/check-group-name").get(checkGroupNameDuplicate);
+router.route("/check-group-name").post(checkGroupNameDuplicate);
 
 module.exports = router;

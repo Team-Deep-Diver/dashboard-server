@@ -1,6 +1,12 @@
 const { Server } = require("socket.io");
 
-const { Card, Snapshot } = require("../models/Card");
+const getTodayCards = require("../utils/getTodayCards");
+const getRecentCards = require("../utils/getRecentCards");
+const updateRecentCards = require("../utils/updateRecentCards");
+const createNewCard = require("../utils/createNewCard");
+const modifyCard = require("../utils/modifyCard");
+const deleteCard = require("../utils/deleteCard");
+const createNewNotice = require("../utils/createNewNotice");
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -15,145 +21,75 @@ module.exports = (server) => {
 
     socket.on("searchMyCards", async (data) => {
       const { user_id, currentDate } = data;
-      const myCards = await Card.aggregate([
-        { $match: { createdBy: user_id } },
-        {
-          $match: {
-            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
-          },
-        },
-      ]);
 
-      socket.emit("getMyCards", { myCards });
+      const myCards = await getTodayCards(user_id, currentDate);
+
+      if (myCards[0]?.snapshots.length > 0) {
+        return socket.emit("getMyCards", myCards);
+      }
+
+      const recentCards = await getRecentCards(user_id, currentDate);
+
+      if (recentCards.length === 0) {
+        return socket.emit("getMyCards", []);
+      }
+
+      await updateRecentCards(recentCards, currentDate);
+
+      const myNewCards = await getTodayCards(user_id, currentDate);
+
+      if (myNewCards[0]?.snapshots.length > 0) {
+        return socket.emit("getMyCards", myNewCards);
+      }
     });
 
     socket.on("createCard", async (data) => {
       const { socketValue } = data;
-      const {
-        currentDate,
-        createdBy,
-        category,
-        startDate,
-        endDate,
-        colorCode,
-        todos,
-        imgUrl,
-        description,
-        x,
-        y,
-      } = socketValue;
+      const { createdBy, currentDate } = socketValue;
 
-      const todosArr = todos.map((item) => {
-        return {
-          text: item,
-          checked: false,
-        };
-      });
+      await createNewCard(socketValue);
+      const myCards = await getTodayCards(createdBy, currentDate);
 
-      const todaySnapshot = await Snapshot.create({
-        createdAt: new Date().toLocaleDateString(),
-        category,
-        value: {
-          todos: todosArr,
-          imgUrl,
-          description,
-        },
-        coordinate: { x, y },
-      });
-
-      const newCard = await Card.create({
-        createdBy,
-        colorCode,
-        period: { startDate, endDate },
-        snapshots: [todaySnapshot],
-      });
-
-      const myCards = await Card.aggregate([
-        { $match: { createdBy } },
-        {
-          $match: {
-            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
-          },
-        },
-      ]);
-
-      socket.emit("getMyCards", { myCards });
+      socket.emit("getMyCards", myCards);
     });
 
     socket.on("modifyCard", async (data) => {
       const { socketValue } = data;
-      const {
-        snapshotId,
-        currentDate,
-        createdBy,
-        category,
-        startDate,
-        endDate,
-        colorCode,
-        todos,
-        imgUrl,
-        description,
-        x,
-        y,
-      } = socketValue;
+      const { createdBy, currentDate } = socketValue;
 
-      await Snapshot.findOneAndUpdate(
-        {
-          _id: snapshotId,
-        },
-        {
-          category: category,
-          todos: todos,
-          imgUrl: imgUrl,
-          description: description,
-        }
-      );
+      await modifyCard(socketValue);
+      const myCards = await getTodayCards(createdBy, currentDate);
 
-      const myCards = await Card.aggregate([
-        { $match: { createdBy } },
-        {
-          $match: {
-            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
-          },
-        },
-      ]);
-
-      socket.emit("getMyCards", { myCards });
+      socket.emit("getMyCards", myCards);
     });
 
     socket.on("deleteCard", async (data) => {
       const { socketValue } = data;
-      const {
-        snapshotId,
-        currentDate,
-        createdBy,
-        category,
-        startDate,
-        endDate,
-        colorCode,
-        todos,
-        imgUrl,
-        description,
-        x,
-        y,
-      } = socketValue;
+      const { cardId, snapshotId, createdBy, currentDate } = socketValue;
 
-      await Snapshot.findOneAndDelete({ _id: snapshotId });
+      await deleteCard(cardId, snapshotId);
+      const myCards = await getTodayCards(createdBy, currentDate);
 
-      const myCards = await Card.aggregate([
-        { $match: { createdBy } },
-        {
-          $match: {
-            "snapshots.createdAt": new Date(currentDate).toLocaleDateString(),
-          },
-        },
-      ]);
-
-      socket.emit("getMyCards", { myCards });
+      socket.emit("getMyCards", myCards);
     });
 
-    socket.on("sendNotice", (data) => {
-      console.log(data);
+    socket.on("sendNotice", async (data) => {
+      const { socketValue } = data;
+      const { adminId, groupList, startDate, endDate, groupNotice } =
+        socketValue;
+
+      const { name, colorCode, newNotice } = createNewNotice(
+        adminId,
+        startDate,
+        endDate,
+        groupNotice
+      );
+
+      socket.emit(groupList[0], {
+        groupName: name,
+        colorCode,
+        notice: newNotice,
+      });
     });
 
     socket.on("disconnect", () => {
