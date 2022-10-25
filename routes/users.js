@@ -78,10 +78,12 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
     }).length;
 
     if (appliedGroup) {
-      return res.send(createError(400, ERROR.GROUP_APPLICATION_DUPLICATE));
+      return res
+        .status(400)
+        .send(createError(400, ERROR.GROUP_APPLICATION_DUPLICATE));
     }
   } catch {
-    return res.send(createError(404, ERROR.USER_NOT_FOUND));
+    return res.status(404).send(createError(404, ERROR.USER_NOT_FOUND));
   }
 
   try {
@@ -108,6 +110,8 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
         },
       }
     );
+
+    res.sendStatus(200);
   } catch (err) {
     return res.send(createError(404, ERROR.GROUP_NOT_FOUND));
   }
@@ -119,6 +123,8 @@ router.post(
     const { group_id, applicant_id } = req.params;
     const resultStatus = req.body.status;
 
+    console.log(group_id, applicant_id);
+    console.log(resultStatus);
     try {
       await User.updateOne(
         {
@@ -159,5 +165,37 @@ router.post(
     }
   }
 );
+
+router.get("/:user_id/groupNotice", async function (req, res, next) {
+  try {
+    const { user_id } = req.params;
+
+    const result = await User.find({
+      _id: user_id,
+    }).populate({
+      path: "groups.groupId",
+      populate: {
+        path: "notices",
+        match: {
+          "notices.period.startDate": { $lte: new Date().toLocaleDateString() },
+          "notices.period.endDate": { $gte: new Date().toLocaleDateString() },
+        },
+      },
+    });
+
+    const { name, notices, colorCode } =
+      result[0].groups.length > 0
+        ? result[0].groups[0].groupId
+        : { name: "", notices: [], colorCode: "" };
+
+    res.status(200).json({
+      groupName: name,
+      colorCode: colorCode,
+      notice: notices,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;

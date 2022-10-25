@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const snapshotSchema = new mongoose.Schema({
-  createdAt: { type: Date, required: true },
+  createdAt: { type: String, required: true },
   category: { type: String, required: true },
   value: {
     todos: [
@@ -19,4 +19,4 @@ const snapshotSchema = new mongoose.Schema({
   },
 });
 
-// module.exports = mongoose.model("Snapshot", snapshotSchema);
+module.exports = mongoose.model("Snapshot", snapshotSchema);
