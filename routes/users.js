@@ -60,6 +60,8 @@ router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
       return res.send(createError(400, ERROR.GROUP_NOT_FOUND));
     }
 
+    await Group.updateOne({ _id: group_id }, { $pull: { members: user_id } });
+
     res.sendStatus(204);
   } catch (err) {
     next(err);
@@ -123,8 +125,6 @@ router.post(
     const { group_id, applicant_id } = req.params;
     const resultStatus = req.body.status;
 
-    console.log(group_id, applicant_id);
-    console.log(resultStatus);
     try {
       await User.updateOne(
         {
@@ -132,6 +132,17 @@ router.post(
           "groups.groupId": group_id,
         },
         { $set: { "groups.$.status": resultStatus } }
+      );
+
+      Group.findOneAndUpdate(
+        { _id: group_id },
+        { $pull: { applicants: applicant_id } },
+        (err, data) => {
+          if (err) {
+            console.error(err);
+            res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
+          }
+        }
       );
 
       if (resultStatus === "PARTICIPATING") {
@@ -146,17 +157,6 @@ router.post(
           }
         );
       }
-
-      Group.findOneAndUpdate(
-        { _id: group_id },
-        { $pull: { applicants: applicant_id } },
-        (err, data) => {
-          if (err) {
-            console.error(err);
-            res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
-          }
-        }
-      );
 
       res.sendStatus(201);
     } catch (err) {
