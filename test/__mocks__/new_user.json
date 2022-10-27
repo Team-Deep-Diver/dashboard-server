@@ -1,0 +1,7 @@
+{
+  "nickname": "test",
+  "email": "test11@gmail.com",
+  "password": "test11test",
+  "confirmPassword": "test11test",
+  "role": "MEMBER"
+}
