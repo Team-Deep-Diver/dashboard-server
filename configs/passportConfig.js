@@ -7,8 +7,6 @@ const User = require("../models/User");
 
 module.exports = () => {
   passport.serializeUser((user, done) => {
-    console.log("serializeUser", user);
-    console.log("serializeUser.Id", user._id);
     done(null, user._id);
   });
 
@@ -58,7 +56,7 @@ module.exports = () => {
       },
       async (jwtPayload, done) => {
         try {
-          const user = await User.findById(jwtPayload._id);
+          const user = await User.findById(jwtPayload.id);
           if (!user) {
             return done(null, false, { message: "Authorization error" });
           }

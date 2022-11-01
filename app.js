@@ -4,7 +4,6 @@ const express = require("express");
 const createError = require("http-errors");
 const cors = require("cors");
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const passportConfig = require("./configs/passportConfig");
 
@@ -22,7 +21,6 @@ app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
@@ -34,7 +32,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 passportConfig();
-// app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
 app.use(passport.authenticate("jwt", { session: false }));
