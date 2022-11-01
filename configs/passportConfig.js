@@ -3,9 +3,12 @@ const passportJWT = require("passport-jwt");
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 const LocalStrategy = require("passport-local").Strategy;
+
 const User = require("../models/User");
 
-module.exports = () => {
+const ERROR = require("../constants/error");
+
+module.exports = function () {
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });
@@ -32,11 +35,11 @@ module.exports = () => {
         try {
           const user = await User.findOne({ email });
           if (!user) {
-            return done(null, false, { message: "No account" });
+            return done(null, false, { message: ERROR.INVALID_ACCOUNT });
           }
 
           if (user.password !== password) {
-            return done(null, false, { message: "Incorrect password" });
+            return done(null, false, { message: ERROR.PASSWORDS_NOT_MATCH });
           }
 
           return done(null, user);
@@ -58,7 +61,7 @@ module.exports = () => {
         try {
           const user = await User.findById(jwtPayload.id);
           if (!user) {
-            return done(null, false, { message: "Authorization error" });
+            return done(null, false, { message: ERROR.AUTH_FORBIDDEN });
           }
 
           return done(null, user);
