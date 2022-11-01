@@ -1,8 +1,6 @@
-const createError = require("http-errors");
 const User = require("../../models/User");
 const Group = require("../../models/Group");
 
-const ERROR = require("../../constants/error");
 const validationCheck = require("../../utils/validationCheck");
 const randomGroupColorCode = require("../../utils/randomGroupColorCode");
 
@@ -13,7 +11,14 @@ module.exports = {
       const errorMessage = validationCheck(req);
 
       if (errorMessage) {
-        return res.send(createError(400, { message: errorMessage }));
+        return res.status(400).json({ error: errorMessage });
+      }
+
+      const user = await User.findOne({ email });
+      const group = await Group.findOne({ name: groupName });
+
+      if (user || (role === "ADMIN" && group)) {
+        return res.status(400).json({ message: "회원 가입에 실패하셨습니다. 다시 입력해주시길 바랍니다." });
       }
 
       const newUser = await User.create({
@@ -51,13 +56,19 @@ module.exports = {
   checkEmailDuplicate: async function (req, res, next) {
     try {
       const { email } = req.body;
-      const user = await User.findOne({ email });
+      const regex =
+        /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
 
-      if (user) {
-        return res.send(createError(400, ERROR.EMAIL_DUPLICATE));
+      if (!regex.test(email)) {
+        return res.status(400).json({ message: "* 이메일 형식에 맞지 않습니다." });
       }
 
-      return res.sendStatus(200);
+      const user = await User.findOne({ email });
+      if (user) {
+        return res.status(400).json({ message: "* 이미 가입한 이메일입니다." });
+      }
+
+      return res.status(200).json({ message: "* 사용 가능한 이메일입니다." });
     } catch (err) {
       next(err);
     }
@@ -67,11 +78,15 @@ module.exports = {
       const { groupName } = req.body;
       const group = await Group.findOne({ name: groupName });
 
-      if (group) {
-        return res.send(createError(400, ERROR.GROUP_NAME_DUPLICATE));
+      if (!groupName || groupName.length < 2) {
+        return res.status(400).json({ message: "* 그룹명은 최소 2자 이상 입력해주세요." });
       }
 
-      return res.sendStatus(200);
+      if (group) {
+        return res.status(400).json({ message: "* 사용 불가능한 그룹명입니다." });
+      }
+
+      return res.status(200).json({ message: "* 사용 가능한 그룹명입니다." });
     } catch (err) {
       next(err);
     }
