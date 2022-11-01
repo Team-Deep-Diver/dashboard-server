@@ -184,19 +184,21 @@ router.get("/:user_id/groupNotice", async function (req, res, next) {
     });
 
     if (result[0].groups.length > 0) {
-      const array = [];
+      const myGroupList = [];
 
       result[0].groups.map((group) => {
         if (group.status === "PARTICIPATING") {
-          array.push({
-            name: group.groupId.name,
-            notices: [...group.groupId.notices],
-            colorCode: group.groupId.colorCode,
+          const { name, notices, colorCode } = group.groupId;
+
+          myGroupList.push({
+            name,
+            notices: [...notices],
+            colorCode,
           });
         }
       });
 
-      res.status(200).send(array);
+      res.status(200).json({ myGroupList });
     } else {
       res.status(200).json({ name: "", notices: [], colorCode: "" });
     }

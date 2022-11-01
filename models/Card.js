@@ -8,8 +8,14 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   period: {
-    startDate: { type: String },
-    endDate: { type: String },
+    startDate: {
+      type: String,
+      default: new Date(Date.now()).toLocaleDateString(),
+    },
+    endDate: {
+      type: String,
+      default: new Date(Date.now()).toLocaleDateString(),
+    },
   },
   snapshots: [{ type: mongoose.Schema.Types.ObjectId, ref: "Snapshot" }],
 });

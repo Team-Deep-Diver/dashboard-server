@@ -19,7 +19,7 @@ module.exports = {
         }
 
         if (user) {
-          const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET);
+          const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
           res.status(200).json({ user, token: "Bearer " + token });
         }
