@@ -17,7 +17,7 @@ const ERROR = {
   USER_NOT_FOUND: "* 가입되지 않은 이메일입니다.",
   GROUP_NOT_FOUND: "* 해당 그룹을 찾을 수 없습니다.",
   MEMBER_NOT_FOUND: "Member not found.",
-  AUTH_FORBIDDEN: "Authentication error.",
+  AUTH_FORBIDDEN: "* 인증 오류가 발생했습니다. 다시 시도해주세요.",
   SERVER_ERROR: "Internal server error.",
 };
 

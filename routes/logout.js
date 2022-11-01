@@ -1,16 +1,8 @@
-const espress = require("express");
-const router = espress.Router();
+const express = require("express");
+const router = express.Router();
 
-const ERROR = require("../constants/error");
+const { logout } = require("./controllers/logoutController");
 
-router.post("/", function (req, res, next) {
-  req.logout((err) => {
-    if (err) {
-      return res.send(createError(400, ERROR.NO_ACCOUNT));
-    }
-
-    return res.sendStatus(200);
-  });
-});
+router.post("/", logout);
 
 module.exports = router;
