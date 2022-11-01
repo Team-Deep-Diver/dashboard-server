@@ -21,8 +21,10 @@ module.exports = (server) => {
 
     socket.on("searchMyCards", async (data) => {
       const { user_id, currentDate } = data;
+      console.log("server search??", data);
 
       const myCards = await getTodayCards(user_id, currentDate);
+      console.log("myCards", myCards);
 
       if (myCards[0]?.snapshots.length > 0) {
         return socket.emit("getMyCards", myCards);
@@ -55,12 +57,17 @@ module.exports = (server) => {
 
     socket.on("modifyCard", async (data) => {
       const { socketValue } = data;
-      const { createdBy, currentDate } = socketValue;
 
-      await modifyCard(socketValue);
-      const myCards = await getTodayCards(createdBy, currentDate);
+      if (socketValue === null) {
+        return;
+      } else {
+        const { createdBy, currentDate } = socketValue;
 
-      socket.emit("getMyCards", myCards);
+        await modifyCard(socketValue);
+        const myCards = await getTodayCards(createdBy, currentDate);
+
+        socket.emit("getMyCards", myCards);
+      }
     });
 
     socket.on("deleteCard", async (data) => {

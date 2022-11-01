@@ -4,7 +4,7 @@ const cardSchema = new mongoose.Schema({
   createdBy: { type: String, required: true },
   colorCode: {
     type: String,
-    enum: ["#CDDAFD", "#BEE1E6", "#E2ECE9", "#FDE2E4", "#FFF1E6"],
+    enum: ["#62FCAF", "#9300FE", "#11ffee", "#034EFD", "#fcf434"],
     required: true,
   },
   period: {
