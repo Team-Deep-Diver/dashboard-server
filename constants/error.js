@@ -16,7 +16,7 @@ const ERROR = {
   GROUP_APPLICATION_DUPLICATE: "This group has already been applied.",
   CARD_NOT_FOUND: "Card not found.",
   USER_NOT_FOUND: "* 가입되지 않은 이메일입니다.",
-  GROUP_NOT_FOUND: "Group not found.",
+  GROUP_NOT_FOUND: "* 해당 그룹을 찾을 수 없습니다.",
   MEMBER_NOT_FOUND: "Member not found.",
   AUTH_FORBIDDEN: "Authentication error.",
   SERVER_ERROR: "Internal server error.",

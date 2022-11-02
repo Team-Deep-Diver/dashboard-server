@@ -24,7 +24,7 @@ router.get("/:user_id/groups", async function (req, res, next) {
     const userInfo = await User.findById(user_id);
 
     if (!userInfo) {
-      return res.send(createError(400, ERROR.USER_NOT_FOUND));
+      return res.status(400).json({ message: ERROR.USER_NOT_FOUND });
     }
 
     if (userInfo.role === "ADMIN") {
@@ -44,7 +44,7 @@ router.get("/:user_id/groups", async function (req, res, next) {
 
     return res.status(200).send(userInfo.groups);
   } catch (err) {
-    next(err);
+    res.status(400).json({ message: ERROR.GROUP_NOT_FOUND });
   }
 });
 
@@ -139,7 +139,6 @@ router.post(
         { $pull: { applicants: applicant_id } },
         (err, data) => {
           if (err) {
-            console.error(err);
             res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
           }
         }
@@ -151,7 +150,6 @@ router.post(
           { $push: { members: applicant_id } },
           (err, data) => {
             if (err) {
-              console.error(err);
               res.status(404).send({ message: ERROR.GROUP_NOT_FOUND });
             }
           }
@@ -160,7 +158,6 @@ router.post(
 
       res.sendStatus(201);
     } catch (err) {
-      console.error(err);
       res.status(404).send({ message: ERROR.MEMBER_NOT_FOUND });
     }
   }
