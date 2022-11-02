@@ -28,21 +28,19 @@ router.get("/:user_id/groups", async function (req, res, next) {
     }
 
     if (userInfo.role === "ADMIN") {
-      const applicants = await Group.findOne({ admin: user_id }).populate(
-        "applicants"
-      );
-      const members = await Group.findOne({ admin: user_id }).populate(
-        "members"
-      );
+      const groupInfo = await Group.findOne({ admin: user_id })
+        .populate("applicants")
+        .populate("members");
 
-      return res.status(200).json({ applicants, members });
+      return res.status(200).json({
+        applicants: groupInfo.applicants,
+        members: groupInfo.members,
+      });
     }
 
     if (userInfo.role === "MEMBER") {
-      return res.json(userInfo.groups);
+      return res.status(200).send(userInfo.groups);
     }
-
-    return res.status(200).send(userInfo.groups);
   } catch (err) {
     res.status(400).json({ message: ERROR.GROUP_NOT_FOUND });
   }
