@@ -14,7 +14,9 @@ router.get("/:user_id", async (req, res) => {
 
     res.status(200).json(userInfo);
   } catch (err) {
-    res.send(createError(403, ERROR.AUTH_FORBIDDEN));
+    err.status = 403;
+    err.message = ERROR.AUTH_FORBIDDEN;
+    next(err);
   }
 });
 
@@ -201,7 +203,7 @@ router.get("/:user_id/groupNotice", async function (req, res, next) {
     res.status(200).json({ myGroupList });
   } catch (err) {
     err.status = 400;
-    err.message = "그룹 공지를 가져오는데 실패하였습니다. 다시 시도해주세요.";
+    err.message = ERROR.GROUP_NOT_FOUND;
     next(err);
   }
 });
