@@ -8,10 +8,10 @@ const {
   checkGroupNameDuplicate,
 } = require("./controllers/signupController");
 
-router.route("/").post(validateSignup, signup);
+router.post("/", validateSignup, signup);
 
-router.route("/check-email").post(checkEmailDuplicate);
+router.post("/check-email", checkEmailDuplicate);
 
-router.route("/check-group-name").post(checkGroupNameDuplicate);
+router.post("/check-group-name", checkGroupNameDuplicate);
 
 module.exports = router;
