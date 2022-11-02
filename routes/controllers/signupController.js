@@ -49,21 +49,20 @@ module.exports = {
       });
 
       if (role === "ADMIN") {
+        console.log("newUser :::", newUser);
         const newGroup = await Group.create({
           name: groupName,
           admin: newUser._id,
           colorCode: randomGroupColorCode(),
         });
 
-        await User.updateOne(
-          { _id: newUser._id },
+        await User.findOneAndUpdate(
+          { email: newUser.email },
           {
-            $push: {
-              groups: {
-                groupId: newGroup._id,
-                groupName,
-                status: "PARTICIPATING",
-              },
+            groups: {
+              groupId: newGroup._id,
+              groupName: newGroup.name,
+              status: "PARTICIPATING",
             },
           }
         );
