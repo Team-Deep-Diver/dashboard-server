@@ -167,42 +167,41 @@ router.post(
 router.get("/:user_id/groupNotice", async function (req, res, next) {
   try {
     const { user_id } = req.params;
+    const myGroupList = [];
 
-    const result = await User.find({
+    const groupInfo = await User.find({
       _id: user_id,
     }).populate({
       path: "groups.groupId",
       populate: {
         path: "notices",
         match: {
-          "notices.period.startDate": {
-            $lte: new Date().toLocaleDateString(),
-          },
-          "notices.period.endDate": { $gte: new Date().toLocaleDateString() },
+          "period.startDate": { $lte: new Date().toLocaleDateString() },
+          "period.endDate": { $gte: new Date().toLocaleDateString() },
         },
       },
     });
 
-    if (result[0].groups.length > 0) {
-      const myGroupList = [];
+    groupInfo[0].groups.map((group) => {
+      if (group.status === "PARTICIPATING") {
+        const { name, notices, colorCode } = group.groupId;
 
-      result[0].groups.map((group) => {
-        if (group.status === "PARTICIPATING") {
-          const { name, notices, colorCode } = group.groupId;
-
+        for (const notice of notices) {
           myGroupList.push({
-            name,
-            notices: [...notices],
+            groupName: name,
             colorCode,
+            startDate: notice.period.startDate,
+            endDate: notice.period.endDate,
+            message: notice.message,
           });
         }
-      });
+      }
+    });
 
-      res.status(200).json({ myGroupList });
-    } else {
-      res.status(200).json({ name: "", notices: [], colorCode: "" });
-    }
+    res.status(200).json({ myGroupList });
   } catch (err) {
+    err.status = 400;
+    err.message = "그룹 공지를 가져오는데 실패하였습니다. 다시 시도해주세요.";
     next(err);
   }
 });

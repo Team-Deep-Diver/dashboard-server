@@ -12,7 +12,7 @@ const noticeSchema = new mongoose.Schema({
       default: new Date(Date.now()).toLocaleDateString(),
     },
   },
-  createdAt: { type: String, default: Date.now },
+  createdAt: { type: String, default: new Date(Date.now()).toLocaleDateString() },
 });
 
 module.exports = mongoose.model("Notice", noticeSchema);

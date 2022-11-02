@@ -82,7 +82,7 @@ module.exports = (server) => {
       const { adminId, groupList, startDate, endDate, groupNotice } =
         socketValue;
 
-      const { name, colorCode, newNotice } = createNewNotice(
+      const { name, colorCode, newNotice } = await createNewNotice(
         adminId,
         startDate,
         endDate,
