@@ -9,6 +9,7 @@ const deleteCard = require("../services/deleteCard");
 const createNewNotice = require("../services/createNewNotice");
 
 const Card = require("../models/Card");
+const Snapshot = require("../models/Card");
 
 module.exports = (server) => {
   const io = new Server(server, {
