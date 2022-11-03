@@ -4,10 +4,7 @@ const Notice = require("../models/Notice");
 async function createNewNotice(adminId, startDate, endDate, groupNotice) {
   const newNotice = await Notice.create({
     message: groupNotice,
-    period: {
-      startDate: new Date(startDate).toLocaleDateString(),
-      endDate: new Date(endDate).toLocaleDateString(),
-    },
+    period: { startDate, endDate },
   });
 
   const groupInfo = await Group.findOneAndUpdate(

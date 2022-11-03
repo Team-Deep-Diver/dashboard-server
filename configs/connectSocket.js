@@ -8,8 +8,6 @@ const modifyCard = require("../services/modifyCard");
 const deleteCard = require("../services/deleteCard");
 const createNewNotice = require("../services/createNewNotice");
 
-const Card = require("../models/Card");
-
 module.exports = (server) => {
   const io = new Server(server, {
     cors: {
@@ -56,12 +54,17 @@ module.exports = (server) => {
 
     socket.on("modifyCard", async (data) => {
       const { socketValue } = data;
-      const { createdBy, currentDate } = socketValue;
 
-      await modifyCard(socketValue);
-      const myCards = await getTodayCards(createdBy, currentDate);
+      if (socketValue === null) {
+        return;
+      } else {
+        const { createdBy, currentDate } = socketValue;
 
-      socket.emit("getMyCards", myCards);
+        await modifyCard(socketValue);
+        const myCards = await getTodayCards(createdBy, currentDate);
+
+        socket.emit("getMyCards", myCards);
+      }
     });
 
     socket.on("deleteCard", async (data) => {
@@ -74,17 +77,12 @@ module.exports = (server) => {
       socket.emit("getMyCards", myCards);
     });
 
-    socket.on("resetGuestCards", async (data) => {
-      const { socketValue } = data;
-      await Card.deleteMany({ createdBy: socketValue });
-    });
-
     socket.on("sendNotice", async (data) => {
       const { socketValue } = data;
       const { adminId, groupList, startDate, endDate, groupNotice } =
         socketValue;
 
-      const { name, colorCode, newNotice } = await createNewNotice(
+      const { name, colorCode, newNotice } = createNewNotice(
         adminId,
         startDate,
         endDate,

@@ -14,9 +14,7 @@ router.get("/:user_id", async (req, res) => {
 
     res.status(200).json(userInfo);
   } catch (err) {
-    err.status = 403;
-    err.message = ERROR.AUTH_FORBIDDEN;
-    next(err);
+    res.send(createError(403, ERROR.AUTH_FORBIDDEN));
   }
 });
 
@@ -27,10 +25,6 @@ router.get("/:user_id/groups", async function (req, res, next) {
 
     if (!userInfo) {
       return res.status(400).json({ message: ERROR.USER_NOT_FOUND });
-    }
-
-    if (userInfo.role === "MEMBER") {
-      return res.status(200).json(userInfo.groups);
     }
 
     if (userInfo.role === "ADMIN") {
@@ -44,8 +38,13 @@ router.get("/:user_id/groups", async function (req, res, next) {
         members: groupInfo.members,
       });
     }
+
+    if (userInfo.role === "MEMBER") {
+      return res.status(200).json(userInfo.groups);
+    }
   } catch (err) {
-    err.message = ERROR.SERVER_ERROR;
+    err.status = 400;
+    err.message = ERROR.GROUP_NOT_FOUND;
     next(err);
   }
 });
@@ -53,22 +52,19 @@ router.get("/:user_id/groups", async function (req, res, next) {
 router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
   try {
     const { user_id, group_id } = req.params;
-
     const result = await User.updateOne(
       { _id: user_id },
       { $pull: { groups: { groupId: group_id } } }
     );
 
     if (result.modifiedCount === 0) {
-      return res.status(400).json({ message: ERROR.GROUP_NOT_FOUND });
+      return res.send(createError(400, ERROR.GROUP_NOT_FOUND));
     }
 
     await Group.updateOne({ _id: group_id }, { $pull: { members: user_id } });
 
     res.sendStatus(204);
   } catch (err) {
-    err.status = 500;
-    err.message = ERROR.SERVER_ERROR;
     next(err);
   }
 });
@@ -171,41 +167,42 @@ router.post(
 router.get("/:user_id/groupNotice", async function (req, res, next) {
   try {
     const { user_id } = req.params;
-    const myGroupList = [];
 
-    const groupInfo = await User.find({
+    const result = await User.find({
       _id: user_id,
     }).populate({
       path: "groups.groupId",
       populate: {
         path: "notices",
         match: {
-          "period.startDate": { $lte: new Date().toLocaleDateString() },
-          "period.endDate": { $gte: new Date().toLocaleDateString() },
+          "notices.period.startDate": {
+            $lte: new Date().toLocaleDateString(),
+          },
+          "notices.period.endDate": { $gte: new Date().toLocaleDateString() },
         },
       },
     });
 
-    groupInfo[0].groups.map((group) => {
-      if (group.status === "PARTICIPATING") {
-        const { name, notices, colorCode } = group.groupId;
+    if (result[0].groups.length > 0) {
+      const myGroupList = [];
 
-        for (const notice of notices) {
+      result[0].groups.map((group) => {
+        if (group.status === "PARTICIPATING") {
+          const { name, notices, colorCode } = group.groupId;
+
           myGroupList.push({
-            groupName: name,
+            name,
+            notices: [...notices],
             colorCode,
-            startDate: notice.period.startDate,
-            endDate: notice.period.endDate,
-            message: notice.message,
           });
         }
-      }
-    });
+      });
 
-    res.status(200).json({ myGroupList });
+      res.status(200).json({ myGroupList });
+    } else {
+      res.status(200).json({ name: "", notices: [], colorCode: "" });
+    }
   } catch (err) {
-    err.status = 400;
-    err.message = ERROR.GROUP_NOT_FOUND;
     next(err);
   }
 });

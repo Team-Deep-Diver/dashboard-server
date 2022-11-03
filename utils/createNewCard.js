@@ -15,7 +15,7 @@ async function createNewCard(socketValue) {
     y,
   } = socketValue;
 
-  const newSnapshot = await Snapshot.create({
+  const snapshot = await Snapshot.create({
     createdAt: new Date().toLocaleDateString(),
     category,
     value: {
@@ -26,15 +26,17 @@ async function createNewCard(socketValue) {
     coordinate: { x, y },
   });
 
-  await Card.create({
+  const newCard = await Card.create({
     createdBy,
     colorCode,
     period: {
       startDate: new Date(startDate).toLocaleDateString(),
       endDate: new Date(endDate).toLocaleDateString(),
     },
-    snapshots: [newSnapshot._id],
+    snapshots: snapshot._id,
   });
+
+  return newCard._id;
 }
 
 module.exports = createNewCard;

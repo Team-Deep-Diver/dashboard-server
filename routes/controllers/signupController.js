@@ -41,7 +41,6 @@ module.exports = {
             $push: {
               groups: {
                 groupId: newGroup._id,
-                groupName,
                 status: "PARTICIPATING",
               },
             },
