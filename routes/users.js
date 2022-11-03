@@ -23,6 +23,7 @@ router.get("/:user_id", async (req, res) => {
 router.get("/:user_id/groups", async function (req, res, next) {
   try {
     const { user_id } = req.params;
+
     const userInfo = await User.findById(user_id);
 
     if (!userInfo) {
@@ -67,7 +68,6 @@ router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
 
     res.sendStatus(204);
   } catch (err) {
-    err.status = 500;
     err.message = ERROR.SERVER_ERROR;
     next(err);
   }
