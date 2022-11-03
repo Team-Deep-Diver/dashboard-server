@@ -3,9 +3,11 @@ const createError = require("http-errors");
 const router = express.Router();
 
 const User = require("../models/User");
+const Card = require("../models/Card");
 const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
+const auth = require("../middlewares/auth");
 
 router.get("/:user_id", async (req, res) => {
   try {
@@ -23,7 +25,6 @@ router.get("/:user_id", async (req, res) => {
 router.get("/:user_id/groups", async function (req, res, next) {
   try {
     const { user_id } = req.params;
-
     const userInfo = await User.findById(user_id);
 
     if (!userInfo) {

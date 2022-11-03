@@ -46,6 +46,12 @@ module.exports = function () {
         } catch (err) {
           done(err);
         }
+
+        if (user.password !== password) {
+          return done(null, false, { message: "Incorrect password" });
+        }
+
+        return done(null, user);
       }
     )
   );
@@ -68,6 +74,8 @@ module.exports = function () {
         } catch (err) {
           done(err);
         }
+
+        return done(null, user);
       }
     )
   );
