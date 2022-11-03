@@ -14,11 +14,11 @@ const ERROR = {
   GROUP_NAME_DUPLICATE: "This group name is alreday taken.",
   GROUP_APPLICATION_DUPLICATE: "This group has already been applied.",
   CARD_NOT_FOUND: "Card not found.",
-  USER_NOT_FOUND: "* 가입되지 않은 이메일입니다.",
+  USER_NOT_FOUND: "* 가입되지 않은 사용자입니다.",
   GROUP_NOT_FOUND: "* 해당 그룹을 찾을 수 없습니다.",
   MEMBER_NOT_FOUND: "Member not found.",
-  AUTH_FORBIDDEN: "Authentication error.",
-  SERVER_ERROR: "Internal server error.",
+  AUTH_FORBIDDEN: "* 인증 오류가 발생했습니다. 다시 시도해주세요.",
+  SERVER_ERROR: "* 오류가 발생했습니다. 다시 시도해주세요.",
 };
 
 module.exports = ERROR;

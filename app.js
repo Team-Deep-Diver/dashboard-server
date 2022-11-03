@@ -12,6 +12,7 @@ const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
 const groupsRouter = require("./routes/groups");
 const logoutRouter = require("./routes/logout");
+const colorCodeRouter = require("./routes/colorCode");
 
 const connectMongoDB = require("./configs/connectMongoDB");
 connectMongoDB();
@@ -34,6 +35,7 @@ app.use(passport.session());
 passportConfig();
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+app.use("/card-color-list", colorCodeRouter);
 app.use(passport.authenticate("jwt", { session: false }));
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
@@ -47,7 +49,7 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
   res.status(err.status || 500);
-  res.send(err.message);
+  res.json({ message: err.message });
 });
 
 module.exports = app;
