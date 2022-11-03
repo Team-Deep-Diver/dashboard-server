@@ -1,12 +1,12 @@
 const { Server } = require("socket.io");
 
-const getTodayCards = require("../utils/getTodayCards");
-const getRecentCards = require("../utils/getRecentCards");
-const updateRecentCards = require("../utils/updateRecentCards");
-const createNewCard = require("../utils/createNewCard");
-const modifyCard = require("../utils/modifyCard");
-const deleteCard = require("../utils/deleteCard");
-const createNewNotice = require("../utils/createNewNotice");
+const getTodayCards = require("../services/getTodayCards");
+const getRecentCards = require("../services/getRecentCards");
+const updateRecentCards = require("../services/updateRecentCards");
+const createNewCard = require("../services/createNewCard");
+const modifyCard = require("../services/modifyCard");
+const deleteCard = require("../services/deleteCard");
+const createNewNotice = require("../services/createNewNotice");
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -21,7 +21,6 @@ module.exports = (server) => {
 
     socket.on("searchMyCards", async (data) => {
       const { user_id, currentDate } = data;
-
       const myCards = await getTodayCards(user_id, currentDate);
 
       if (myCards[0]?.snapshots.length > 0) {

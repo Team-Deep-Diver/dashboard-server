@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
 const ERROR = require("../../constants/error");
-const validationCheck = require("../../utils/validationCheck");
+const validationCheck = require("../../services/validationCheck");
 
 module.exports = {
   login: async function (req, res, next) {
@@ -20,7 +20,6 @@ module.exports = {
 
         if (user) {
           const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-
           res.status(200).json({ user, token: "Bearer " + token });
         }
       })(req, res, next);
