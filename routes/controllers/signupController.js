@@ -49,7 +49,6 @@ module.exports = {
       });
 
       if (role === "ADMIN") {
-        console.log("newUser :::", newUser);
         const newGroup = await Group.create({
           name: groupName,
           admin: newUser._id,
