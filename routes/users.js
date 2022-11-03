@@ -129,8 +129,6 @@ router.post(
     const { group_id, applicant_id } = req.params;
     const resultStatus = req.body.status;
 
-    console.log(group_id, applicant_id);
-    console.log(resultStatus);
     try {
       await User.updateOne(
         {

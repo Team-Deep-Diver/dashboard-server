@@ -57,12 +57,17 @@ module.exports = (server) => {
 
     socket.on("modifyCard", async (data) => {
       const { socketValue } = data;
-      const { createdBy, currentDate } = socketValue;
 
-      await modifyCard(socketValue);
-      const myCards = await getTodayCards(createdBy, currentDate);
+      if (socketValue === null) {
+        return;
+      } else {
+        const { createdBy, currentDate } = socketValue;
 
-      socket.emit("getMyCards", myCards);
+        await modifyCard(socketValue);
+        const myCards = await getTodayCards(createdBy, currentDate);
+
+        socket.emit("getMyCards", myCards);
+      }
     });
 
     socket.on("deleteCard", async (data) => {
