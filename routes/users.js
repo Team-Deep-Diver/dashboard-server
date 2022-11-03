@@ -29,6 +29,10 @@ router.get("/:user_id/groups", async function (req, res, next) {
       return res.status(400).json({ message: ERROR.USER_NOT_FOUND });
     }
 
+    if (userInfo.role === "MEMBER") {
+      return res.status(200).json(userInfo.groups);
+    }
+
     if (userInfo.role === "ADMIN") {
       const groupInfo = await Group.findOne({ admin: user_id })
         .populate("applicants")
@@ -40,13 +44,9 @@ router.get("/:user_id/groups", async function (req, res, next) {
         members: groupInfo.members,
       });
     }
-
-    if (userInfo.role === "MEMBER") {
-      return res.status(200).json(userInfo.groups);
-    }
   } catch (err) {
-    err.status = 400;
-    err.message = ERROR.GROUP_NOT_FOUND;
+    err.status = 500;
+    err.message = ERROR.SERVER_ERROR;
     next(err);
   }
 });
@@ -54,19 +54,22 @@ router.get("/:user_id/groups", async function (req, res, next) {
 router.delete("/:user_id/groups/:group_id", async function (req, res, next) {
   try {
     const { user_id, group_id } = req.params;
+
     const result = await User.updateOne(
       { _id: user_id },
       { $pull: { groups: { groupId: group_id } } }
     );
 
     if (result.modifiedCount === 0) {
-      return res.send(createError(400, ERROR.GROUP_NOT_FOUND));
+      return res.status(400).json({ message: ERROR.GROUP_NOT_FOUND });
     }
 
     await Group.updateOne({ _id: group_id }, { $pull: { members: user_id } });
 
     res.sendStatus(204);
   } catch (err) {
+    err.status = 500;
+    err.message = ERROR.SERVER_ERROR;
     next(err);
   }
 });
