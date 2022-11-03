@@ -86,10 +86,10 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
     if (appliedGroup) {
       return res
         .status(400)
-        .send(createError(400, ERROR.GROUP_APPLICATION_DUPLICATE));
+        .json({ message: ERROR.GROUP_APPLICATION_DUPLICATE });
     }
   } catch {
-    return res.status(404).send(createError(404, ERROR.USER_NOT_FOUND));
+    return res.status(404).json({ message: ERROR.USER_NOT_FOUND });
   }
 
   try {
@@ -119,7 +119,9 @@ router.post("/:user_id/groups/:group_id", async function (req, res, next) {
 
     res.sendStatus(200);
   } catch (err) {
-    return res.send(createError(404, ERROR.GROUP_NOT_FOUND));
+    err.status = 404;
+    err.message = ERROR.GROUP_NOT_FOUND;
+    next(err);
   }
 });
 
