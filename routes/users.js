@@ -45,7 +45,6 @@ router.get("/:user_id/groups", async function (req, res, next) {
       });
     }
   } catch (err) {
-    err.status = 500;
     err.message = ERROR.SERVER_ERROR;
     next(err);
   }

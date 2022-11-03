@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { colorCode } = require("./controllers/colorCodeController");
+const { getColorCode } = require("./controllers/colorCodeController");
 
-router.get("/", colorCode);
+router.get("/", getColorCode);
 
 module.exports = router;
