@@ -14,7 +14,7 @@ router.get("/", async function (req, res, next) {
     const groups = await Group.find({ name: regex });
 
     if (!groups.length) {
-      return res.send(createError(404, ERROR.GROUP_NOT_FOUND));
+      return res.status(404).json({ message: ERROR.GROUP_NOT_FOUND });
     }
 
     const result = [];
@@ -22,8 +22,9 @@ router.get("/", async function (req, res, next) {
       result.push({ name: group.name, group_id: group._id });
     });
 
-    res.send(result);
+    res.status(200).json(result);
   } catch (err) {
+    err.status = 400;
     next(err);
   }
 });
