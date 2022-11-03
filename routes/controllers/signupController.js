@@ -1,3 +1,5 @@
+const bcrypt = require("bcrypt");
+
 const User = require("../../models/User");
 const Group = require("../../models/Group");
 
@@ -23,11 +25,27 @@ module.exports = {
         });
       }
 
-      const newUser = await User.create({
+      const newUser = new User({
         nickname,
         email,
         password,
         role,
+      });
+
+      bcrypt.genSalt(12, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, async (err, hash) => {
+          if (err) {
+            throw err;
+          } else {
+            newUser.password = hash;
+
+            try {
+              await User.create(newUser);
+            } catch (err) {
+              next(err);
+            }
+          }
+        });
       });
 
       if (role === "ADMIN") {
