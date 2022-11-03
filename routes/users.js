@@ -35,6 +35,7 @@ router.get("/:user_id/groups", async function (req, res, next) {
         .populate("members");
 
       return res.status(200).json({
+        groupInfo,
         applicants: groupInfo.applicants,
         members: groupInfo.members,
       });
