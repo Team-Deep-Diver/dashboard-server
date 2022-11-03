@@ -1,8 +1,10 @@
+const bcrypt = require("bcrypt");
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
+
+const LocalStrategy = require("passport-local").Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const LocalStrategy = require("passport-local").Strategy;
 
 const User = require("../models/User");
 
@@ -34,15 +36,20 @@ module.exports = function () {
       async (email, password, done) => {
         try {
           const user = await User.findOne({ email });
+
           if (!user) {
             return done(null, false, { message: ERROR.INVALID_ACCOUNT });
           }
 
-          if (user.password !== password) {
-            return done(null, false, { message: ERROR.PASSWORDS_NOT_MATCH });
-          }
+          bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) throw err;
 
-          return done(null, user);
+            if (isMatch) {
+              return done(null, user);
+            } else {
+              return done(null, false, { message: "Incorrect password" });
+            }
+          });
         } catch (err) {
           done(err);
         }

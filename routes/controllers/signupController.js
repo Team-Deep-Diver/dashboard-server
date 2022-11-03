@@ -1,7 +1,7 @@
 const User = require("../../models/User");
 const Group = require("../../models/Group");
 
-const validationCheck = require("../../utils/validationCheck");
+const validationCheck = require("../../services/validationCheck");
 const randomGroupColorCode = require("../../utils/randomGroupColorCode");
 
 module.exports = {
@@ -18,7 +18,9 @@ module.exports = {
       const group = await Group.findOne({ name: groupName });
 
       if (user || (role === "ADMIN" && group)) {
-        return res.status(400).json({ message: "회원 가입에 실패하셨습니다. 다시 입력해주시길 바랍니다." });
+        return res.status(400).json({
+          message: "회원 가입에 실패하셨습니다. 다시 입력해주시길 바랍니다.",
+        });
       }
 
       const newUser = await User.create({
@@ -35,15 +37,13 @@ module.exports = {
           colorCode: randomGroupColorCode(),
         });
 
-        await User.updateOne(
-          { _id: newUser._id },
+        await User.findOneAndUpdate(
+          { email },
           {
-            $push: {
-              groups: {
-                groupId: newGroup._id,
-                groupName,
-                status: "PARTICIPATING",
-              },
+            groups: {
+              groupId: newGroup._id,
+              groupName,
+              status: "PARTICIPATING",
             },
           }
         );
@@ -61,7 +61,9 @@ module.exports = {
         /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
 
       if (!regex.test(email)) {
-        return res.status(400).json({ message: "* 이메일 형식에 맞지 않습니다." });
+        return res
+          .status(400)
+          .json({ message: "* 이메일 형식에 맞지 않습니다." });
       }
 
       const user = await User.findOne({ email });
@@ -80,11 +82,15 @@ module.exports = {
       const group = await Group.findOne({ name: groupName });
 
       if (!groupName || groupName.length < 2) {
-        return res.status(400).json({ message: "* 그룹명은 최소 2자 이상 입력해주세요." });
+        return res
+          .status(400)
+          .json({ message: "* 그룹명은 최소 2자 이상 입력해주세요." });
       }
 
       if (group) {
-        return res.status(400).json({ message: "* 사용 불가능한 그룹명입니다." });
+        return res
+          .status(400)
+          .json({ message: "* 사용 불가능한 그룹명입니다." });
       }
 
       return res.status(200).json({ message: "* 사용 가능한 그룹명입니다." });

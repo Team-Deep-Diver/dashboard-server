@@ -1,7 +1,6 @@
 const path = require("path");
 const logger = require("morgan");
 const express = require("express");
-const createError = require("http-errors");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
@@ -42,7 +41,9 @@ app.use("/groups", groupsRouter);
 app.use("/logout", logoutRouter);
 
 app.use(function (req, res, next) {
-  next(createError(404));
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
 });
 
 app.use(function (err, req, res, next) {
