@@ -10,7 +10,6 @@ const ERROR = {
     "* 비밀번호는 한 개 이상의 숫자와 영문자를 포함해야 합니다.",
   INVALID_ACCOUNT: "* 해당 이메일을 가진 계정이 존재하지 않습니다.",
   PASSWORDS_NOT_MATCH: "* 비밀번호가 일치하지 않습니다.",
-  // WRONG_PASSWORD: " Email and password do not match.",
   EMAIL_DUPLICATE: "This email is already taken.",
   GROUP_NAME_DUPLICATE: "This group name is alreday taken.",
   GROUP_APPLICATION_DUPLICATE: "This group has already been applied.",
