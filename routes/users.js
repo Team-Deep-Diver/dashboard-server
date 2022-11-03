@@ -3,11 +3,9 @@ const createError = require("http-errors");
 const router = express.Router();
 
 const User = require("../models/User");
-const Card = require("../models/Card");
 const Group = require("../models/Group");
 
 const ERROR = require("../constants/error");
-const auth = require("../middlewares/auth");
 
 router.get("/:user_id", async (req, res) => {
   try {
