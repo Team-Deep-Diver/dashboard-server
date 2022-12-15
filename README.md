@@ -6,6 +6,7 @@
 생성된 카드는 수정하고 삭제할 수 있으며 카드들은 원하는 곳에 배치할 수 있습니다.
 
 배포링크: https://www.slh-dashboard.online
+<br />
 Client repository : https://github.com/Team-Deep-Diver/dashboard-client
 
 <img width="1430" alt="스크린샷 2022-11-02 오후 5 15 02" src="https://user-images.githubusercontent.com/82071500/199466703-eefb6a6b-4565-4534-aa67-b6fafb8c3945.png">
